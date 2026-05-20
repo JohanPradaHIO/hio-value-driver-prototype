@@ -1,0 +1,17 @@
+period_month,site_location,equipment_type,operational_equipment_class,fleet_ident,fleet_specific,ahs_mode,component_name,component_row_count,component_cycle_count,component_truck_count,total_component_seconds,seconds_per_cycle,source_status_desc,is_scenario_component,created_at
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,AHS,dumping,60606,60541,50,2569112.745000,42.435915,Dumping,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,AHS,empty_haul,116361,60593,50,24306681.515000,401.146692,Empty Travel,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,AHS,full_haul,153694,60614,50,28334433.255000,467.456912,Hauling,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,AHS,queue_dump,24505,24374,50,2762128.185000,113.322729,Queue At Dump,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,AHS,queue_load,41658,35563,50,8622599.240000,242.459839,Queue At LU,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,AHS,spot_dump,54570,54099,50,1999593.870000,36.961753,Spot at Dump,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,AHS,spot_load,44048,44028,50,2651016.155000,60.212050,Spot at LU,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,AHS,truck_loading,60914,60569,50,11635540.575000,192.103891,Truck Loading,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,CONV,dumping,3615,3615,3,161845.940000,44.770661,Dumping,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,CONV,empty_haul,6309,3619,3,1314144.720000,363.123714,Empty Travel,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,CONV,full_haul,8277,3621,3,1424444.220000,393.384209,Hauling,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,CONV,queue_dump,840,833,3,81120.795000,97.383908,Queue At Dump,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,CONV,queue_load,2384,2072,3,432733.985000,208.848448,Queue At LU,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,CONV,spot_dump,3001,2981,3,89759.475000,30.110525,Spot at Dump,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,CONV,spot_load,2778,2778,3,132648.900000,47.749784,Spot at LU,true,2024-01-01T00:00:00.000Z
+2024-01-01,Demo Mine Site,Haulers,CAT 793,DemoFleet,Demo,CONV,truck_loading,3636,3616,3,650601.070000,179.922862,Truck Loading,true,2024-01-01T00:00:00.000Z

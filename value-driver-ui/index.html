@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HIO Value Driver Model</title>
+    <link rel="stylesheet" href="styles.css?v=20260520-sensitivity-1">
+  </head>
+  <body>
+    <div class="demo-banner">
+      <strong>DEMO ONLY — Dummy Data.</strong>
+      Values shown are illustrative and do not represent actual business figures.
+      This prototype is for visualization and interactivity feedback only.
+      Future production version will connect to real data.
+    </div>
+
+    <header class="app-header">
+      <div>
+        <h1>HIO Value Driver Model</h1>
+        <p>Prototype — Visualization Demo</p>
+      </div>
+      <div class="scope-controls">
+        <label>
+          Mode
+          <select id="modeSelect"></select>
+        </label>
+        <button id="resetButton" type="button">Reset</button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <aside class="side-panel assumptions-panel">
+        <section>
+          <h2>Assumptions</h2>
+          <div id="assumptionControls" class="control-stack"></div>
+        </section>
+      </aside>
+
+      <section class="main-panel">
+        <section class="summary-band" id="summaryBand"></section>
+
+        <section class="tree-section">
+          <div class="section-title">
+            <h2>Value Driver Tree</h2>
+            <div class="tree-toolbar">
+              <div class="segmented-control" aria-label="Tree view">
+                <button id="compactTreeButton" type="button" class="active">Compact Tree</button>
+                <button id="workbookTreeButton" type="button">Workbook Tree</button>
+              </div>
+              <div class="zoom-control" aria-label="Workbook tree zoom">
+                <button id="zoomOutButton" type="button">-</button>
+                <span id="zoomLabel">100%</span>
+                <button id="zoomInButton" type="button">+</button>
+                <button id="zoomFitButton" type="button">Fit</button>
+              </div>
+              <button id="focusModeButton" class="focus-button" type="button">Focus</button>
+              <span id="activePathLabel"></span>
+            </div>
+          </div>
+          <div id="treeCanvas" class="tree-canvas"></div>
+        </section>
+
+        <section class="comparison-section">
+          <div class="section-title">
+            <div>
+              <h2>Driver Impact</h2>
+              <span id="impactSubtitle">Template scenarios from Databricks</span>
+            </div>
+            <div class="segmented-control impact-tabs" aria-label="Driver impact view">
+              <button id="scenarioRankingButton" type="button" class="active">Scenario Ranking</button>
+              <button id="sensitivityButton" type="button">Sensitivity</button>
+            </div>
+          </div>
+          <div id="scenarioRankingPanel">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Scenario</th>
+                    <th>Family</th>
+                    <th>TMM uplift</th>
+                    <th>Truck eq.</th>
+                    <th>Crusher uplift mode</th>
+                    <th>Crusher uplift scope</th>
+                  </tr>
+                </thead>
+                <tbody id="scenarioRows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="sensitivityPanel" hidden>
+            <div id="sensitivityBubbles" class="sensitivity-bubbles"></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Driver</th>
+                    <th>Family</th>
+                    <th>Step tested</th>
+                    <th>TMM uplift</th>
+                    <th>Annualized</th>
+                    <th>Truck eq.</th>
+                    <th>Crusher uplift mode</th>
+                  </tr>
+                </thead>
+                <tbody id="sensitivityRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side-panel details-panel">
+        <section>
+          <h2>Selected Node</h2>
+          <div id="nodeDetails" class="details-content"></div>
+        </section>
+        <section>
+          <h2>Source Lineage</h2>
+          <div id="lineageDetails" class="details-content"></div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="app.js?v=20260520-sensitivity-1"></script>
+  </body>
+</html>

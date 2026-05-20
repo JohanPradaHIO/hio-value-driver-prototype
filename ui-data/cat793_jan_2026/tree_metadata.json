@@ -1,0 +1,657 @@
+{
+  "metadata_version": "0.1.0",
+  "created_at": "2026-05-19",
+  "scope": {
+    "period_month": "2026-01-01",
+    "site_location": "Roy Hill Mine",
+    "equipment_type": "Haulers",
+    "operational_equipment_class": "CAT 793",
+    "fleet_ident": "79L",
+    "fleet_specific": "Universal"
+  },
+  "nodes": [
+    {
+      "node_id": "actual_tonnes",
+      "label": "Actual Tonnes",
+      "node_type": "source",
+      "unit": "tonnes/month",
+      "dataset": "baseline",
+      "field": "actual_tonnes",
+      "editable": false,
+      "description": "Actual tonnes reported by Wenco haul cycles for the selected scope."
+    },
+    {
+      "node_id": "payload_avg",
+      "label": "Payload Avg",
+      "node_type": "source",
+      "unit": "tonnes/cycle",
+      "dataset": "baseline",
+      "field": "payload_avg",
+      "editable": false,
+      "description": "Average payload from Wenco haul cycles."
+    },
+    {
+      "node_id": "payload_delta_pct",
+      "label": "Payload Improvement",
+      "node_type": "assumption",
+      "unit": "percent",
+      "dataset": "scenario_results",
+      "field": "payload_delta_pct",
+      "editable": true,
+      "default_value": 0.01,
+      "min_value": -0.05,
+      "max_value": 0.1,
+      "description": "User assumption for payload improvement."
+    },
+    {
+      "node_id": "improved_payload",
+      "label": "Improved Payload",
+      "node_type": "calculated",
+      "unit": "tonnes/cycle",
+      "dataset": "scenario_results",
+      "field": "improved_payload",
+      "formula_id": "improved_payload",
+      "editable": false,
+      "description": "Payload after applying the payload improvement assumption."
+    },
+    {
+      "node_id": "cycle_seconds",
+      "label": "Baseline Cycle Time",
+      "node_type": "calculated",
+      "unit": "seconds/cycle",
+      "dataset": "baseline",
+      "field": "cycle_seconds",
+      "formula_id": "cycle_seconds_sum",
+      "editable": false,
+      "description": "Reconstructed cycle time from selected cycle components."
+    },
+    {
+      "node_id": "cycle_minutes",
+      "label": "Baseline Cycle Time",
+      "node_type": "calculated",
+      "unit": "minutes/cycle",
+      "dataset": "baseline",
+      "field": "cycle_minutes",
+      "formula_id": "seconds_to_minutes",
+      "editable": false,
+      "description": "Reconstructed cycle time in minutes."
+    },
+    {
+      "node_id": "component_reduction_pct",
+      "label": "Component Reduction",
+      "node_type": "assumption",
+      "unit": "percent",
+      "dataset": "scenario_results",
+      "field": "component_reduction_pct",
+      "editable": true,
+      "description": "User assumption for reducing a selected cycle component."
+    },
+    {
+      "node_id": "cycle_seconds_removed",
+      "label": "Cycle Seconds Removed",
+      "node_type": "calculated",
+      "unit": "seconds/cycle",
+      "dataset": "scenario_results",
+      "field": "cycle_seconds_removed",
+      "formula_id": "cycle_seconds_removed",
+      "editable": false,
+      "description": "Seconds removed from baseline cycle time by the selected scenario."
+    },
+    {
+      "node_id": "improved_cycle_minutes",
+      "label": "Improved Cycle Time",
+      "node_type": "calculated",
+      "unit": "minutes/cycle",
+      "dataset": "scenario_results",
+      "field": "improved_cycle_minutes",
+      "formula_id": "improved_cycle_minutes",
+      "editable": false,
+      "description": "Cycle time after scenario improvement."
+    },
+    {
+      "node_id": "operating_hours",
+      "label": "Operating Hours",
+      "node_type": "source",
+      "unit": "hours/month",
+      "dataset": "baseline",
+      "field": "operating_hours",
+      "editable": false,
+      "description": "Operating hours from canonical TUM fact; primary production denominator for the prototype."
+    },
+    {
+      "node_id": "required_hours",
+      "label": "Required Hours",
+      "node_type": "source",
+      "unit": "hours/month",
+      "dataset": "baseline",
+      "field": "required_hours",
+      "editable": false,
+      "description": "Required hours from canonical TUM fact."
+    },
+    {
+      "node_id": "operational_standby_hours",
+      "label": "Operational Standby",
+      "node_type": "source",
+      "unit": "hours/month",
+      "dataset": "baseline",
+      "field": "operational_standby_hours",
+      "editable": false,
+      "description": "Operational standby hours from canonical TUM fact."
+    },
+    {
+      "node_id": "operating_delay_hours",
+      "label": "Operating Delay",
+      "node_type": "source",
+      "unit": "hours/month",
+      "dataset": "baseline",
+      "field": "operating_delay_hours",
+      "editable": false,
+      "description": "Operating delay hours from canonical TUM fact."
+    },
+    {
+      "node_id": "availability_delta_points",
+      "label": "Availability Improvement",
+      "node_type": "assumption",
+      "unit": "percentage points",
+      "dataset": "scenario_results",
+      "field": "availability_delta_points",
+      "editable": true,
+      "default_value": 0.01,
+      "min_value": 0,
+      "max_value": 0.05,
+      "description": "User assumption for availability improvement."
+    },
+    {
+      "node_id": "standby_reduction_pct",
+      "label": "Standby Reduction",
+      "node_type": "assumption",
+      "unit": "percent",
+      "dataset": "scenario_results",
+      "field": "standby_reduction_pct",
+      "editable": true,
+      "default_value": 0.1,
+      "min_value": 0,
+      "max_value": 0.5,
+      "description": "User assumption for converting operational standby into operating hours."
+    },
+    {
+      "node_id": "delay_reduction_pct",
+      "label": "Delay Reduction",
+      "node_type": "assumption",
+      "unit": "percent",
+      "dataset": "scenario_results",
+      "field": "delay_reduction_pct",
+      "editable": true,
+      "default_value": 0.1,
+      "min_value": 0,
+      "max_value": 0.5,
+      "description": "User assumption for converting operating delay into operating hours."
+    },
+    {
+      "node_id": "improved_operating_hours",
+      "label": "Improved Operating Hours",
+      "node_type": "calculated",
+      "unit": "hours/month",
+      "dataset": "scenario_results",
+      "field": "improved_operating_hours",
+      "formula_id": "improved_operating_hours",
+      "editable": false,
+      "description": "Operating hours after availability, standby or delay assumptions."
+    },
+    {
+      "node_id": "baseline_rate_tph",
+      "label": "Baseline Production Rate",
+      "node_type": "calculated",
+      "unit": "tonnes/hour",
+      "dataset": "baseline",
+      "field": "baseline_rate_tph",
+      "formula_id": "production_rate_tph",
+      "editable": false,
+      "description": "Baseline truck production rate."
+    },
+    {
+      "node_id": "improved_rate_tph",
+      "label": "Improved Production Rate",
+      "node_type": "calculated",
+      "unit": "tonnes/hour",
+      "dataset": "scenario_results",
+      "field": "improved_rate_tph",
+      "formula_id": "production_rate_tph",
+      "editable": false,
+      "description": "Production rate after payload or cycle-time improvement."
+    },
+    {
+      "node_id": "baseline_modelled_tonnes",
+      "label": "Baseline Modelled TMM",
+      "node_type": "calculated",
+      "unit": "tonnes/month",
+      "dataset": "baseline",
+      "field": "baseline_modelled_tonnes",
+      "formula_id": "modelled_tonnes",
+      "editable": false,
+      "description": "Baseline modelled total material movement."
+    },
+    {
+      "node_id": "improved_modelled_tonnes",
+      "label": "Improved Modelled TMM",
+      "node_type": "calculated",
+      "unit": "tonnes/month",
+      "dataset": "scenario_results",
+      "field": "improved_modelled_tonnes",
+      "formula_id": "modelled_tonnes",
+      "editable": false,
+      "description": "Scenario modelled total material movement."
+    },
+    {
+      "node_id": "tmm_uplift_tonnes",
+      "label": "TMM Uplift",
+      "node_type": "output",
+      "unit": "tonnes/month",
+      "dataset": "scenario_results",
+      "field": "tmm_uplift_tonnes",
+      "formula_id": "tmm_uplift",
+      "editable": false,
+      "description": "Monthly total material movement uplift from the selected scenario."
+    },
+    {
+      "node_id": "annualized_tmm_uplift_tonnes",
+      "label": "Annualized TMM Uplift",
+      "node_type": "output",
+      "unit": "tonnes/year",
+      "dataset": "scenario_results",
+      "field": "annualized_tmm_uplift_tonnes",
+      "formula_id": "annualize_monthly",
+      "editable": false,
+      "description": "Monthly TMM uplift multiplied by 12."
+    },
+    {
+      "node_id": "baseline_tonnes_per_truck_month",
+      "label": "Baseline Tonnes Per Truck",
+      "node_type": "calculated",
+      "unit": "tonnes/truck/month",
+      "dataset": "baseline",
+      "field": "baseline_tonnes_per_truck_month",
+      "formula_id": "baseline_tonnes_per_truck_month",
+      "editable": false,
+      "description": "Average baseline modelled tonnes per truck per month."
+    },
+    {
+      "node_id": "truck_equivalent",
+      "label": "Truck Equivalent",
+      "node_type": "output",
+      "unit": "trucks",
+      "dataset": "scenario_results",
+      "field": "truck_equivalent",
+      "formula_id": "truck_equivalent",
+      "editable": false,
+      "description": "Monthly uplift translated into equivalent average baseline trucks."
+    },
+    {
+      "node_id": "direct_crusher_ratio_mode",
+      "label": "Direct Crusher Ratio - Mode",
+      "node_type": "source",
+      "unit": "ratio",
+      "dataset": "baseline",
+      "field": "direct_crusher_ratio_mode",
+      "editable": false,
+      "description": "Direct crusher share for the selected AHS/CONV mode."
+    },
+    {
+      "node_id": "direct_crusher_ratio_scope",
+      "label": "Direct Crusher Ratio - Scope",
+      "node_type": "source",
+      "unit": "ratio",
+      "dataset": "baseline",
+      "field": "direct_crusher_ratio_scope",
+      "editable": false,
+      "description": "Direct crusher share for the full selected CAT793 scope."
+    },
+    {
+      "node_id": "direct_crusher_uplift_tonnes_mode",
+      "label": "Direct Crusher Uplift - Mode",
+      "node_type": "output",
+      "unit": "tonnes/month",
+      "dataset": "scenario_results",
+      "field": "direct_crusher_uplift_tonnes_mode",
+      "formula_id": "direct_crusher_uplift",
+      "editable": false,
+      "description": "Monthly direct crusher uplift using the selected mode crusher ratio."
+    },
+    {
+      "node_id": "direct_crusher_uplift_tonnes_scope",
+      "label": "Direct Crusher Uplift - Scope",
+      "node_type": "output",
+      "unit": "tonnes/month",
+      "dataset": "scenario_results",
+      "field": "direct_crusher_uplift_tonnes_scope",
+      "formula_id": "direct_crusher_uplift",
+      "editable": false,
+      "description": "Monthly direct crusher uplift using the full-scope crusher ratio."
+    }
+  ],
+  "component_nodes": [
+    {
+      "component_name": "empty_haul",
+      "label": "Empty Haul",
+      "source_status_desc": "Empty Travel",
+      "default_reduction_pct": 0.02
+    },
+    {
+      "component_name": "full_haul",
+      "label": "Full Haul",
+      "source_status_desc": "Hauling",
+      "default_reduction_pct": 0.02
+    },
+    {
+      "component_name": "queue_load",
+      "label": "Queue Load",
+      "source_status_desc": "Queue At LU",
+      "default_reduction_pct": 0.15
+    },
+    {
+      "component_name": "spot_load",
+      "label": "Spot Load",
+      "source_status_desc": "Spot at LU",
+      "default_reduction_pct": 0.1
+    },
+    {
+      "component_name": "truck_loading",
+      "label": "Truck Loading",
+      "source_status_desc": "Truck Loading",
+      "default_reduction_pct": 0.05
+    },
+    {
+      "component_name": "queue_dump",
+      "label": "Queue Dump",
+      "source_status_desc": "Queue At Dump",
+      "default_reduction_pct": 0.1
+    },
+    {
+      "component_name": "spot_dump",
+      "label": "Spot Dump",
+      "source_status_desc": "Spot at Dump",
+      "default_reduction_pct": 0.05
+    },
+    {
+      "component_name": "dumping",
+      "label": "Dumping",
+      "source_status_desc": "Dumping",
+      "default_reduction_pct": 0.05
+    }
+  ],
+  "edges": [
+    {
+      "from_node_id": "payload_avg",
+      "to_node_id": "improved_payload",
+      "relationship_type": "formula_input",
+      "input_role": "baseline_payload"
+    },
+    {
+      "from_node_id": "payload_delta_pct",
+      "to_node_id": "improved_payload",
+      "relationship_type": "formula_input",
+      "input_role": "payload_delta_pct"
+    },
+    {
+      "from_node_id": "cycle_seconds",
+      "to_node_id": "cycle_minutes",
+      "relationship_type": "formula_input",
+      "input_role": "seconds"
+    },
+    {
+      "from_node_id": "cycle_seconds",
+      "to_node_id": "cycle_seconds_removed",
+      "relationship_type": "formula_input",
+      "input_role": "baseline_component_seconds"
+    },
+    {
+      "from_node_id": "component_reduction_pct",
+      "to_node_id": "cycle_seconds_removed",
+      "relationship_type": "formula_input",
+      "input_role": "component_reduction_pct"
+    },
+    {
+      "from_node_id": "cycle_seconds_removed",
+      "to_node_id": "improved_cycle_minutes",
+      "relationship_type": "formula_input",
+      "input_role": "cycle_seconds_removed"
+    },
+    {
+      "from_node_id": "payload_avg",
+      "to_node_id": "baseline_rate_tph",
+      "relationship_type": "formula_input",
+      "input_role": "payload"
+    },
+    {
+      "from_node_id": "cycle_minutes",
+      "to_node_id": "baseline_rate_tph",
+      "relationship_type": "formula_input",
+      "input_role": "cycle_minutes"
+    },
+    {
+      "from_node_id": "improved_payload",
+      "to_node_id": "improved_rate_tph",
+      "relationship_type": "formula_input",
+      "input_role": "payload"
+    },
+    {
+      "from_node_id": "improved_cycle_minutes",
+      "to_node_id": "improved_rate_tph",
+      "relationship_type": "formula_input",
+      "input_role": "cycle_minutes"
+    },
+    {
+      "from_node_id": "operating_hours",
+      "to_node_id": "baseline_modelled_tonnes",
+      "relationship_type": "formula_input",
+      "input_role": "operating_hours"
+    },
+    {
+      "from_node_id": "baseline_rate_tph",
+      "to_node_id": "baseline_modelled_tonnes",
+      "relationship_type": "formula_input",
+      "input_role": "rate_tph"
+    },
+    {
+      "from_node_id": "required_hours",
+      "to_node_id": "improved_operating_hours",
+      "relationship_type": "formula_input",
+      "input_role": "required_hours"
+    },
+    {
+      "from_node_id": "availability_delta_points",
+      "to_node_id": "improved_operating_hours",
+      "relationship_type": "formula_input",
+      "input_role": "availability_delta_points"
+    },
+    {
+      "from_node_id": "operational_standby_hours",
+      "to_node_id": "improved_operating_hours",
+      "relationship_type": "formula_input",
+      "input_role": "operational_standby_hours"
+    },
+    {
+      "from_node_id": "standby_reduction_pct",
+      "to_node_id": "improved_operating_hours",
+      "relationship_type": "formula_input",
+      "input_role": "standby_reduction_pct"
+    },
+    {
+      "from_node_id": "operating_delay_hours",
+      "to_node_id": "improved_operating_hours",
+      "relationship_type": "formula_input",
+      "input_role": "operating_delay_hours"
+    },
+    {
+      "from_node_id": "delay_reduction_pct",
+      "to_node_id": "improved_operating_hours",
+      "relationship_type": "formula_input",
+      "input_role": "delay_reduction_pct"
+    },
+    {
+      "from_node_id": "improved_rate_tph",
+      "to_node_id": "improved_modelled_tonnes",
+      "relationship_type": "formula_input",
+      "input_role": "rate_tph"
+    },
+    {
+      "from_node_id": "improved_operating_hours",
+      "to_node_id": "improved_modelled_tonnes",
+      "relationship_type": "formula_input",
+      "input_role": "operating_hours"
+    },
+    {
+      "from_node_id": "baseline_modelled_tonnes",
+      "to_node_id": "tmm_uplift_tonnes",
+      "relationship_type": "formula_input",
+      "input_role": "baseline_modelled_tonnes"
+    },
+    {
+      "from_node_id": "improved_modelled_tonnes",
+      "to_node_id": "tmm_uplift_tonnes",
+      "relationship_type": "formula_input",
+      "input_role": "improved_modelled_tonnes"
+    },
+    {
+      "from_node_id": "tmm_uplift_tonnes",
+      "to_node_id": "annualized_tmm_uplift_tonnes",
+      "relationship_type": "formula_input",
+      "input_role": "monthly_value"
+    },
+    {
+      "from_node_id": "baseline_modelled_tonnes",
+      "to_node_id": "baseline_tonnes_per_truck_month",
+      "relationship_type": "formula_input",
+      "input_role": "baseline_modelled_tonnes"
+    },
+    {
+      "from_node_id": "baseline_tonnes_per_truck_month",
+      "to_node_id": "truck_equivalent",
+      "relationship_type": "formula_input",
+      "input_role": "baseline_tonnes_per_truck_month"
+    },
+    {
+      "from_node_id": "tmm_uplift_tonnes",
+      "to_node_id": "truck_equivalent",
+      "relationship_type": "formula_input",
+      "input_role": "tmm_uplift_tonnes"
+    },
+    {
+      "from_node_id": "tmm_uplift_tonnes",
+      "to_node_id": "direct_crusher_uplift_tonnes_mode",
+      "relationship_type": "formula_input",
+      "input_role": "tmm_uplift_tonnes"
+    },
+    {
+      "from_node_id": "direct_crusher_ratio_mode",
+      "to_node_id": "direct_crusher_uplift_tonnes_mode",
+      "relationship_type": "formula_input",
+      "input_role": "direct_crusher_ratio"
+    },
+    {
+      "from_node_id": "tmm_uplift_tonnes",
+      "to_node_id": "direct_crusher_uplift_tonnes_scope",
+      "relationship_type": "formula_input",
+      "input_role": "tmm_uplift_tonnes"
+    },
+    {
+      "from_node_id": "direct_crusher_ratio_scope",
+      "to_node_id": "direct_crusher_uplift_tonnes_scope",
+      "relationship_type": "formula_input",
+      "input_role": "direct_crusher_ratio"
+    }
+  ],
+  "formulas": [
+    {
+      "formula_id": "improved_payload",
+      "label": "Improved Payload",
+      "expression": "baseline_payload * (1 + payload_delta_pct)",
+      "output_unit": "tonnes/cycle",
+      "description": "Applies the payload improvement assumption to baseline payload."
+    },
+    {
+      "formula_id": "cycle_seconds_sum",
+      "label": "Cycle Seconds",
+      "expression": "sum(selected cycle component seconds_per_cycle)",
+      "output_unit": "seconds/cycle",
+      "description": "Reconstructs cycle time from validated component statuses."
+    },
+    {
+      "formula_id": "seconds_to_minutes",
+      "label": "Seconds To Minutes",
+      "expression": "seconds / 60",
+      "output_unit": "minutes",
+      "description": "Converts seconds to minutes."
+    },
+    {
+      "formula_id": "cycle_seconds_removed",
+      "label": "Cycle Seconds Removed",
+      "expression": "component_seconds * component_reduction_pct",
+      "output_unit": "seconds/cycle",
+      "description": "Calculates seconds removed from a selected cycle component."
+    },
+    {
+      "formula_id": "improved_cycle_minutes",
+      "label": "Improved Cycle Minutes",
+      "expression": "(baseline_cycle_seconds - cycle_seconds_removed) / 60",
+      "output_unit": "minutes/cycle",
+      "description": "Calculates improved cycle time."
+    },
+    {
+      "formula_id": "improved_operating_hours",
+      "label": "Improved Operating Hours",
+      "expression": "baseline_operating_hours + required_hours * availability_delta_points + operational_standby_hours * standby_reduction_pct + operating_delay_hours * delay_reduction_pct",
+      "output_unit": "hours/month",
+      "description": "Calculates operating hours after availability, standby or delay assumptions."
+    },
+    {
+      "formula_id": "production_rate_tph",
+      "label": "Production Rate",
+      "expression": "payload / (cycle_minutes / 60)",
+      "output_unit": "tonnes/hour",
+      "description": "Calculates truck production rate."
+    },
+    {
+      "formula_id": "modelled_tonnes",
+      "label": "Modelled Tonnes",
+      "expression": "rate_tph * operating_hours",
+      "output_unit": "tonnes/month",
+      "description": "Calculates modelled material movement."
+    },
+    {
+      "formula_id": "tmm_uplift",
+      "label": "TMM Uplift",
+      "expression": "improved_modelled_tonnes - baseline_modelled_tonnes",
+      "output_unit": "tonnes/month",
+      "description": "Calculates monthly total material movement uplift."
+    },
+    {
+      "formula_id": "annualize_monthly",
+      "label": "Annualize Monthly Value",
+      "expression": "monthly_value * 12",
+      "output_unit": "value/year",
+      "description": "Simple annualization of a one-month result."
+    },
+    {
+      "formula_id": "baseline_tonnes_per_truck_month",
+      "label": "Baseline Tonnes Per Truck Month",
+      "expression": "baseline_modelled_tonnes / cycle_truck_count",
+      "output_unit": "tonnes/truck/month",
+      "description": "Calculates average baseline modelled tonnes per truck."
+    },
+    {
+      "formula_id": "truck_equivalent",
+      "label": "Truck Equivalent",
+      "expression": "tmm_uplift_tonnes / baseline_tonnes_per_truck_month",
+      "output_unit": "trucks",
+      "description": "Converts monthly uplift into equivalent average baseline trucks."
+    },
+    {
+      "formula_id": "direct_crusher_uplift",
+      "label": "Direct Crusher Uplift",
+      "expression": "tmm_uplift_tonnes * direct_crusher_ratio",
+      "output_unit": "tonnes/month",
+      "description": "Converts TMM uplift into estimated direct crusher uplift."
+    }
+  ]
+}
