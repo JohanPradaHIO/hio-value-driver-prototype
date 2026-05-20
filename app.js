@@ -1,4 +1,4 @@
-const DATA_ROOT = "../ui-data/cat793_jan_2026";
+const DATA_ROOT = "./ui-data/cat793_jan_2026";
 const DATA_VERSION = "20260520-sensitivity-1";
 
 const state = {
