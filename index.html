@@ -3,28 +3,69 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Value Driver Model</title>
-    <link rel="stylesheet" href="styles.css?v=20260520-sensitivity-1">
+    <title>Mining Driver Tree Model - Review Copy</title>
+    <link rel="stylesheet" href="styles.css?v=github-review-disclaimer-01">
   </head>
   <body>
-    <div class="demo-banner">
-      <strong>DEMO ONLY — Dummy Data.</strong>
-      Values shown are illustrative and do not represent actual business figures.
-      This prototype is for visualization and interactivity feedback only.
-      Future production version will connect to real data.
+    <div class="public-disclaimer" role="note">
+      <strong>Review copy only.</strong>
+      This prototype is provided for discussion of the value-driver tree interface. Any data shown in a public/demo build must be treated as dummy or synthetic sample data and must not be interpreted as official, operational, financial, planning or production reporting.
     </div>
-
     <header class="app-header">
-      <div>
-        <h1>Value Driver Model</h1>
-        <p>Prototype — Visualization Demo</p>
+      <div class="app-title">
+        <h1>Mining Driver Tree Model</h1>
+        <div id="scopeSummary" class="scope-summary" hidden></div>
+        <div id="scopeWarning" class="scope-warning" hidden></div>
       </div>
       <div class="scope-controls">
-        <label>
-          Mode
-          <select id="modeSelect"></select>
-        </label>
-        <button id="resetButton" type="button">Reset</button>
+        <div class="control-group">
+          <span class="group-title">Baseline</span>
+          <div class="group-fields">
+            <label>
+              Source
+              <select id="baselineSourceSelect"></select>
+            </label>
+            <div class="date-range-field">
+              <span>Range</span>
+              <button id="baselineRangeButton" class="date-range-button" type="button"></button>
+              <div id="baselineRangeCalendar" class="range-calendar" hidden></div>
+            </div>
+          </div>
+        </div>
+        <div class="control-group">
+          <span class="group-title">Scenario</span>
+          <div class="group-fields">
+            <label>
+              Type
+              <select id="comparisonModeSelect">
+                <option value="actual_period">Actuals</option>
+                <option value="weekly_plan">Weekly Plan</option>
+                <option value="stp">STP</option>
+                <option value="mtp">MTP</option>
+                <option value="custom_scenario">Custom</option>
+              </select>
+            </label>
+            <div class="date-range-field">
+              <span>Range</span>
+              <button id="comparisonRangeButton" class="date-range-button" type="button"></button>
+              <div id="comparisonRangeCalendar" class="range-calendar" hidden></div>
+            </div>
+          </div>
+        </div>
+        <div class="control-group">
+          <span class="group-title">Scope</span>
+          <div class="group-fields">
+            <div class="filter-group">
+              <span>Fleet</span>
+              <div id="fleetFilter" class="multi-select-filter" aria-label="Fleet filter"></div>
+            </div>
+            <div class="filter-group">
+              <span>Truck Mode</span>
+              <div id="modeFilter" class="multi-select-filter" aria-label="Mode filter"></div>
+            </div>
+          </div>
+        </div>
+        <button id="resetButton" class="reset-button" type="button">Reset</button>
       </div>
     </header>
 
@@ -43,10 +84,6 @@
           <div class="section-title">
             <h2>Value Driver Tree</h2>
             <div class="tree-toolbar">
-              <div class="segmented-control" aria-label="Tree view">
-                <button id="compactTreeButton" type="button" class="active">Compact Tree</button>
-                <button id="workbookTreeButton" type="button">Workbook Tree</button>
-              </div>
               <div class="zoom-control" aria-label="Workbook tree zoom">
                 <button id="zoomOutButton" type="button">-</button>
                 <span id="zoomLabel">100%</span>
@@ -64,13 +101,14 @@
           <div class="section-title">
             <div>
               <h2>Driver Impact</h2>
-              <span id="impactSubtitle">Template scenarios from Databricks</span>
+              <span id="impactSubtitle">Template scenario seed, pending Databricks refresh</span>
             </div>
             <div class="segmented-control impact-tabs" aria-label="Driver impact view">
               <button id="scenarioRankingButton" type="button" class="active">Scenario Ranking</button>
               <button id="sensitivityButton" type="button">Sensitivity</button>
             </div>
           </div>
+          <div id="contributionPanel" class="contribution-panel"></div>
           <div id="scenarioRankingPanel">
             <div class="table-wrap">
               <table>
@@ -78,10 +116,8 @@
                   <tr>
                     <th>Scenario</th>
                     <th>Family</th>
-                    <th>TMM uplift</th>
+                    <th>TMM delta</th>
                     <th>Truck eq.</th>
-                    <th>Crusher uplift mode</th>
-                    <th>Crusher uplift scope</th>
                   </tr>
                 </thead>
                 <tbody id="scenarioRows"></tbody>
@@ -97,10 +133,9 @@
                     <th>Driver</th>
                     <th>Family</th>
                     <th>Step tested</th>
-                    <th>TMM uplift</th>
+                    <th>TMM delta</th>
                     <th>Annualized</th>
                     <th>Truck eq.</th>
-                    <th>Crusher uplift mode</th>
                   </tr>
                 </thead>
                 <tbody id="sensitivityRows"></tbody>
@@ -112,7 +147,10 @@
 
       <aside class="side-panel details-panel">
         <section>
-          <h2>Selected Node</h2>
+          <div class="details-panel-header">
+            <h2>Selected Node</h2>
+            <button id="closeDetailsButton" class="close-details-button" type="button" title="Hide panel">&times;</button>
+          </div>
           <div id="nodeDetails" class="details-content"></div>
         </section>
         <section>
@@ -122,6 +160,6 @@
       </aside>
     </main>
 
-    <script src="app.js?v=20260520-sensitivity-1"></script>
+    <script src="app.js?v=github-review-disclaimer-01"></script>
   </body>
 </html>

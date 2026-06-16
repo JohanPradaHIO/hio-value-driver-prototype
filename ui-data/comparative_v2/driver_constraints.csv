@@ -1,0 +1,14 @@
+﻿driver_id,driver_label,unit,recommended_min,recommended_max,hard_min,hard_max,step,default_value,constraint_basis,warning_text,block_text,needs_confirmation
+queue_load,Queue Load Reduction,percent,0,0.25,0,1,0.01,0,prototype_placeholder,Above 25% needs operational validation.,Cannot remove more than 100% of queue load time.,true
+queue_dump,Queue Dump Reduction,percent,0,0.2,0,1,0.01,0,prototype_placeholder,Above 20% needs operational validation.,Cannot remove more than 100% of queue dump time.,true
+truck_loading,Truck Loading Reduction,percent,0,0.15,0,1,0.01,0,prototype_placeholder,Above 15% needs loading-process validation.,Cannot remove more than 100% of loading time.,true
+full_haul,Full Haul Reduction,percent,0,0.1,0,1,0.01,0,prototype_placeholder,Above 10% needs route/speed validation.,Cannot remove more than 100% of full haul time.,true
+empty_haul,Empty Haul Reduction,percent,0,0.1,0,1,0.01,0,prototype_placeholder,Above 10% needs route/speed validation.,Cannot remove more than 100% of empty haul time.,true
+spot_load,Spot Load Reduction,percent,0,0.2,0,1,0.01,0,prototype_placeholder,Above 20% needs loading-area validation.,Cannot remove more than 100% of spot load time.,true
+dumping,Dumping Reduction,percent,0,0.1,0,1,0.01,0,prototype_placeholder,Above 10% needs dumping-process validation.,Cannot remove more than 100% of dumping time.,true
+spot_dump,Spot Dump Reduction,percent,0,0.2,0,1,0.01,0,prototype_placeholder,Above 20% needs dump-area validation.,Cannot remove more than 100% of spot dump time.,true
+payload_delta_pct,Payload Improvement,percent,-0.05,0.03,-0.2,0.1,0.005,0,prototype_placeholder,Payload improvements above 3% need rated-payload or percentile validation.,Payload change outside -20% to +10% is blocked in prototype.,true
+scheduled_maintenance_reduction_pct,Scheduled Maintenance Reduction,percent,0,0.1,0,1,0.01,0,data_available_hours,Above 10% needs maintenance validation.,Cannot recover more scheduled maintenance hours than exist.,true
+unscheduled_maintenance_reduction_pct,Unscheduled Maintenance Reduction,percent,0,0.1,0,1,0.01,0,data_available_hours,Above 10% needs maintenance validation.,Cannot recover more unscheduled maintenance hours than exist.,true
+standby_reduction_pct,Operational Standby Reduction,percent,0,0.15,0,1,0.01,0,data_available_hours,Above 15% needs operational validation.,Cannot convert more standby hours than exist.,true
+truck_count_delta,Truck Count Delta,trucks,0,2,-100,100,1,0,prototype_placeholder,Truck count changes need available-fleet validation.,Truck count cannot reduce below zero or exceed approved fleet cap.,true
