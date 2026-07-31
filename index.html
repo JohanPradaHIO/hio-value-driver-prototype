@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Haul Fleet Value Driver Tree - Review Copy</title>
+  <link rel="stylesheet" href="styles.css?v=20260731-v5-19">
+</head>
+<body>
+  <div class="public-disclaimer" role="note">
+    <strong>Review copy only.</strong>
+    Data shown is provided for prototype evaluation and is not approved for operational, financial, planning, production, mine-performance or reporting decisions.
+  </div>
+  <header class="app-header">
+    <div class="brand-block">
+      <p class="eyebrow">Mining Productivity</p>
+      <h1>Haul Fleet Tonnes Moved</h1>
+    </div>
+
+    <div class="scope-controls" aria-label="Model scope">
+      <div class="period-control">
+        <span class="control-title">Reference period</span>
+        <label>Source
+          <select id="baselineSource"></select>
+        </label>
+        <label>From
+          <input id="baselineStart" type="date">
+        </label>
+        <label>To
+          <input id="baselineEnd" type="date">
+        </label>
+      </div>
+
+      <div class="period-control comparison-control">
+        <span class="control-title">Scenario / comparison</span>
+        <label>View
+          <select id="comparisonMode">
+            <option value="custom">Custom scenario</option>
+            <option value="actual">Actual period</option>
+            <option value="mtp">MTP</option>
+            <option value="stmp">STMP</option>
+            <option value="weekly">Weekly</option>
+          </select>
+        </label>
+        <label>From
+          <input id="comparisonStart" type="date">
+        </label>
+        <label>To
+          <input id="comparisonEnd" type="date">
+        </label>
+      </div>
+
+      <div class="filter-control">
+        <span class="control-title">Fleet scope</span>
+        <details id="fleetMenu" class="filter-menu">
+          <summary id="fleetSummary">Fleet</summary>
+          <div id="fleetOptions" class="filter-options"></div>
+        </details>
+        <details id="modeMenu" class="filter-menu">
+          <summary id="modeSummary">Mode</summary>
+          <div id="modeOptions" class="filter-options"></div>
+        </details>
+        <button id="resetButton" class="secondary-button" type="button">Reset view</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-layout">
+    <aside class="assumptions-panel" aria-label="Scenario assumptions">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Custom scenario</p>
+          <h2>Scenario levers</h2>
+        </div>
+        <button id="resetLeversButton" class="text-button" type="button">Reset levers</button>
+      </div>
+      <p id="leverModeNote" class="panel-note">Adjust the inputs below to test an improvement scenario.</p>
+      <div id="leverControls" class="lever-groups"></div>
+    </aside>
+
+    <section class="workspace">
+      <div id="comparisonNotice" class="comparison-notice" hidden></div>
+      <section id="summaryBand" class="summary-band" aria-label="Model reconciliation"></section>
+
+      <section class="tree-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Haul fleet model</p>
+            <h2>Value Driver Tree</h2>
+          </div>
+          <div class="tree-actions">
+            <div class="zoom-control" aria-label="Tree zoom">
+              <button id="zoomOut" type="button" title="Zoom out">-</button>
+              <span id="zoomLabel">72%</span>
+              <button id="zoomIn" type="button" title="Zoom in">+</button>
+              <button id="zoomFit" type="button">Fit</button>
+            </div>
+          </div>
+        </div>
+        <div id="treeViewport" class="tree-viewport">
+          <div id="treeCanvas" class="tree-canvas"></div>
+        </div>
+      </section>
+
+      <section class="detail-section">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Selected node</p>
+            <h2 id="detailTitle">Haul Fleet Tonnes Moved</h2>
+          </div>
+          <p id="detailFormula" class="formula-note"></p>
+        </div>
+        <div id="detailTable" class="table-wrap"></div>
+      </section>
+    </section>
+  </main>
+
+  <div id="fatalError" class="fatal-error" hidden></div>
+  <script type="module" src="js/app.mjs?v=20260731-v5-19"></script>
+</body>
+</html>
