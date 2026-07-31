@@ -1,6 +1,6 @@
-import { loadFacts, filterFacts, sourceRange, uniqueValues, completeMonths, monthBounds, sourceLabel, isPlanSource, comparePeriodCoverage } from "./data.mjs?v=20260731-v5-19";
-import { COMPONENTS, LEVERS, emptyAssumptions, aggregateModel, aggregateLikeForLike, aggregateByFleetMode, nodeValue, truckEquivalent } from "./model.mjs?v=20260731-v5-19";
-import { NODE_INFO, TREE_WIDTH, renderTree, changedNodeIds, comparisonNodeValue, nodeUnit, formatNodeValue } from "./tree.mjs?v=20260731-v5-19";
+import { loadFacts, filterFacts, sourceRange, uniqueValues, completeMonths, monthBounds, sourceLabel, isPlanSource } from "./data.mjs?v=20260731-v5-24";
+import { COMPONENTS, LEVERS, emptyAssumptions, aggregateModel, aggregateByFleetMode, nodeValue, truckEquivalent } from "./model.mjs?v=20260731-v5-24";
+import { NODE_INFO, TREE_WIDTH, renderTree, changedNodeIds, comparisonNodeValue, nodeUnit, formatNodeValue } from "./tree.mjs?v=20260731-v5-24";
 
 const state = {
   facts: [],
@@ -320,62 +320,47 @@ function leverMarkup(lever, baseline, disabled) {
 
 function render() {
   let baselineRows = currentBaselineRows();
-  const comparisonRows = state.comparisonMode === "custom" ? baselineRows : filterFacts(state.facts, {
+  const planComparison = planScopeActive();
+  let comparisonRows = state.comparisonMode === "custom" ? baselineRows : filterFacts(state.facts, {
     source: state.comparisonMode,
     start: state.comparisonStart,
     end: state.comparisonEnd,
     fleets: state.selectedFleets,
-    modes: state.selectedModes
+    modes: planComparison ? [] : state.selectedModes
   });
   if (isPlanSource(state.comparisonMode)) {
     const planFleets = new Set(comparisonRows.map((row) => row.fleet_display_name));
     baselineRows = baselineRows.filter((row) => planFleets.has(row.fleet_display_name));
+  } else if (isPlanSource(state.baselineSource)) {
+    const planFleets = new Set(baselineRows.map((row) => row.fleet_display_name));
+    comparisonRows = comparisonRows.filter((row) => planFleets.has(row.fleet_display_name));
   }
   const baseline = aggregateModel(baselineRows);
   const observedCurrent = state.comparisonMode === "custom"
     ? aggregateModel(baselineRows, state.assumptions)
     : aggregateModel(comparisonRows);
-  const coverage = state.comparisonMode === "custom"
-    ? { valid: true, keys: [], missingBaseline: [], missingComparison: [], incompleteBaseline: [], incompleteComparison: [] }
-    : comparePeriodCoverage(
-      baselineRows, comparisonRows, state.baselineStart, state.baselineEnd,
-      state.comparisonStart, state.comparisonEnd
-    );
-  const useLikeForLike = state.comparisonMode === "actual" && coverage.valid;
-  const current = useLikeForLike ? aggregateLikeForLike(baselineRows, comparisonRows, { comparisonDays: coverage.comparisonDays }) : observedCurrent;
-  const performanceComparison = state.comparisonMode === "custom" || isPlanSource(state.comparisonMode) || useLikeForLike;
+  const sameActualScope = state.baselineSource === "actual"
+    && state.comparisonMode === "actual"
+    && state.baselineStart === state.comparisonStart
+    && state.baselineEnd === state.comparisonEnd;
+  const current = observedCurrent;
+  const performanceComparison = true;
   baseline.truck_equivalent = 0;
   current.truck_equivalent = truckEquivalent(baseline, current);
 
-  state.view = { baselineRows, comparisonRows, baseline, current, observedCurrent, coverage, useLikeForLike, performanceComparison };
-  renderComparisonNotice(coverage);
-  renderSummary(baseline, current, performanceComparison, coverage, useLikeForLike);
+  state.view = { baselineRows, comparisonRows, baseline, current, sameActualScope, planComparison, performanceComparison };
+  renderComparisonNotice();
+  renderSummary(baseline, current, performanceComparison);
   const hasActiveLever = state.comparisonMode === "custom" && Object.values(state.assumptions).some((value) => Math.abs(value) > 0.000001);
   const activeNodes = changedNodeIds(baseline, current, hasActiveLever, state.assumptions);
   renderTree(document.getElementById("treeCanvas"), baseline, current, state.selectedNodeId, selectNode, state.zoom, activeNodes, performanceComparison);
   renderDetails();
 }
 
-function renderComparisonNotice(coverage) {
+function renderComparisonNotice() {
   const notice = document.getElementById("comparisonNotice");
-  if (isPlanSource(state.comparisonMode)) {
-    notice.hidden = true;
-    notice.textContent = "";
-    return;
-  }
-  if (state.comparisonMode === "custom" || coverage.valid) {
-    notice.hidden = true;
-    notice.textContent = "";
-    return;
-  }
-  const issues = [
-    ...coverage.missingBaseline.map((key) => `${key}: no reference data`),
-    ...coverage.missingComparison.map((key) => `${key}: no comparison data`),
-    ...coverage.incompleteBaseline.map((key) => `${key}: incomplete reference period`),
-    ...coverage.incompleteComparison.map((key) => `${key}: incomplete comparison period`)
-  ];
-  notice.textContent = `Some selected data is incomplete (${issues.join("; ")}). Values remain visible, but improvement colours are paused.`;
-  notice.hidden = false;
+  notice.hidden = true;
+  notice.textContent = "";
 }
 
 function currentBaselineRows() {
@@ -389,7 +374,7 @@ function currentBaselineRows() {
 }
 
 
-function renderSummary(baseline, current, performanceComparison, coverage, useLikeForLike) {
+function renderSummary(baseline, current, performanceComparison) {
   const baselineDays = baseline.day_count || 1;
   const scenarioDays = current.day_count || baselineDays;
   const baselinePerDay = baseline.modelled_tmm / baselineDays;
@@ -400,8 +385,11 @@ function renderSummary(baseline, current, performanceComparison, coverage, useLi
   const dailyDelta = scenarioPerDay - baselinePerDay;
   const deltaPct = baselineAnnualized ? annualizedDelta / baselineAnnualized : 0;
   const deltaTone = performanceComparison ? tone(annualizedDelta) : "";
-  const scenarioBadge = state.comparisonMode === "custom" ? "Custom" : isPlanSource(state.comparisonMode) ? sourceLabel(state.comparisonMode) : useLikeForLike ? "Comparable scope" : "Available data";
-  const deltaBadge = !performanceComparison ? "Period change" : deltaTone === "" ? "No change" : deltaTone === "positive" ? "Better" : "Worse";
+  const scenarioBadge = state.comparisonMode === "custom" ? "Custom"
+    : isPlanSource(state.comparisonMode) || isPlanSource(state.baselineSource) ? sourceLabel(state.comparisonMode)
+      : state.view.sameActualScope ? "Same scope"
+        : sourceLabel(state.comparisonMode);
+  const deltaBadge = !performanceComparison ? "Not comparable" : deltaTone === "" ? "No change" : deltaTone === "positive" ? "Better" : "Worse";
 
   const groups = [
     ["Baseline", "", [
@@ -451,16 +439,10 @@ function renderDetails() {
       "min/cycle"
     ));
   } else {
-    const groupByFleet = isPlanSource(state.comparisonMode);
+    const groupByFleet = state.view.planComparison;
     const baselineGroups = groupByFleet ? aggregateByFleet(baselineRows) : aggregateByFleetMode(baselineRows);
     const currentGroups = groupByFleet
       ? aggregateByFleet(comparisonRows)
-      : state.view.useLikeForLike
-      ? baselineGroups.map((group) => {
-        const groupBaselineRows = baselineRows.filter((row) => row.fleet_display_name === group.fleet && row.ahs_mode === group.mode);
-        const groupComparisonRows = comparisonRows.filter((row) => row.fleet_display_name === group.fleet && row.ahs_mode === group.mode);
-        return { fleet: group.fleet, mode: group.mode, ...aggregateLikeForLike(groupBaselineRows, groupComparisonRows, { comparisonDays: state.view.coverage.comparisonDays }) };
-      })
       : state.comparisonMode === "custom"
         ? aggregateByFleetMode(baselineRows, state.assumptions)
         : aggregateByFleetMode(comparisonRows);
