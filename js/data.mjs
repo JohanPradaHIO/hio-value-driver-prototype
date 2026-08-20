@@ -1,10 +1,10 @@
 import { fetchCsv } from "./csv.mjs";
 
 const PACKAGES = [
-  { path: "./ui-data/multifleet_actuals_v5/daily_driver_facts.csv?v=20260731-v5-24", packageId: "current_actuals", optional: false },
-  { path: "./ui-data/mtp_plan_v5/daily_driver_facts.csv?v=20260731-v5-24", packageId: "mtp_plan", optional: false },
-  { path: "./ui-data/stmp_plan_v5/daily_driver_facts.csv?v=20260731-v5-24", packageId: "stmp_plan", optional: false },
-  { path: "./ui-data/weekly_plan_v5/daily_driver_facts.csv?v=20260731-v5-24", packageId: "weekly_plan", optional: false }
+  { path: "./ui-data/multifleet_actuals_v5/daily_driver_facts.csv?v=20260821-v6-1", packageId: "current_actuals", optional: false },
+  { path: "./ui-data/mtp_plan_v5/daily_driver_facts.csv?v=20260821-v6-1", packageId: "mtp_plan", optional: false },
+  { path: "./ui-data/stmp_plan_v5/daily_driver_facts.csv?v=20260821-v6-1", packageId: "stmp_plan", optional: false },
+  { path: "./ui-data/weekly_plan_v5/daily_driver_facts.csv?v=20260821-v6-1", packageId: "weekly_plan", optional: false }
 ];
 
 export async function loadFacts() {

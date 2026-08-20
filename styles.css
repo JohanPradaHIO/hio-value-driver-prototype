@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   color-scheme: light;
   --navy: #153a5b;
   --navy-deep: #0d2942;
@@ -301,11 +301,15 @@ select:disabled, input[type="date"]:disabled { color: #7e8993; background: #eef2
 .tree-viewport {
   width: 100%;
   max-width: 100%;
-  min-height: 635px;
+  height: clamp(420px, 70vh, 760px);
   overflow: auto;
   border-top: 1px solid var(--soft-line);
   background: #f8fafb;
+  cursor: grab;
+  touch-action: none;
+  overscroll-behavior: contain;
 }
+.tree-viewport.is-panning { cursor: grabbing; user-select: none; }
 .tree-canvas { position: relative; margin-inline: auto; transform-origin: top left; }
 .tree-stage { position: relative; width: 1650px; height: 1175px; transform-origin: top left; }
 .tree-lines { position: absolute; inset: 0; overflow: visible; pointer-events: none; }

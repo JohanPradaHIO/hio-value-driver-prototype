@@ -1,6 +1,6 @@
-import { loadFacts, filterFacts, sourceRange, uniqueValues, completeMonths, monthBounds, sourceLabel, isPlanSource } from "./data.mjs?v=20260731-v5-24";
-import { COMPONENTS, LEVERS, emptyAssumptions, aggregateModel, aggregateByFleetMode, nodeValue, truckEquivalent } from "./model.mjs?v=20260731-v5-24";
-import { NODE_INFO, TREE_WIDTH, renderTree, changedNodeIds, comparisonNodeValue, nodeUnit, formatNodeValue } from "./tree.mjs?v=20260731-v5-24";
+﻿import { loadFacts, filterFacts, sourceRange, uniqueValues, completeMonths, monthBounds, sourceLabel, isPlanSource } from "./data.mjs?v=20260821-v6-1";
+import { COMPONENTS, LEVERS, emptyAssumptions, aggregateModel, aggregateByFleetMode, nodeValue, truckEquivalent } from "./model.mjs?v=20260821-v6-1";
+import { NODE_INFO, TREE_WIDTH, renderTree, changedNodeIds, comparisonNodeValue, nodeUnit, formatNodeValue } from "./tree.mjs?v=20260821-v6-1";
 
 const state = {
   facts: [],
@@ -70,12 +70,7 @@ function populateSourceSelect() {
 
 function bindControls() {
   bindValue("baselineSource", "change", (value) => {
-    const wasPlan = planScopeActive();
     state.baselineSource = value;
-    if (wasPlan !== planScopeActive()) {
-      state.selectedFleets = [];
-      state.selectedModes = [];
-    }
     const range = sourceRange(state.facts, value);
     state.baselineStart = range.min;
     state.baselineEnd = range.max;
@@ -98,12 +93,7 @@ function bindControls() {
     render();
   });
   bindValue("comparisonMode", "change", (value) => {
-    const wasPlan = planScopeActive();
     state.comparisonMode = value;
-    if (wasPlan !== planScopeActive()) {
-      state.selectedFleets = [];
-      state.selectedModes = [];
-    }
     if (value !== "custom") {
       const range = sourceRange(state.facts, value);
       if (state.comparisonStart < range.min || state.comparisonEnd > range.max) {
@@ -149,6 +139,8 @@ function bindControls() {
   document.getElementById("zoomOut").addEventListener("click", () => setZoom(state.zoom - 0.1));
   document.getElementById("zoomFit").addEventListener("click", fitTree);
   bindFilterMenuDismissal();
+  bindTreePan();
+  bindTreeWheelZoom();
   syncInputs();
 }
 
@@ -156,6 +148,60 @@ function bindValue(id, eventName, handler) {
   document.getElementById(id).addEventListener(eventName, (event) => handler(event.target.value));
 }
 
+function bindTreePan() {
+  const viewport = document.getElementById("treeViewport");
+  const dragThreshold = 8;
+  let pan = null;
+
+  viewport.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.target.closest("[data-node-id]")) return;
+    pan = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      scrollLeft: viewport.scrollLeft,
+      scrollTop: viewport.scrollTop,
+      moved: false
+    };
+    try { viewport.setPointerCapture(event.pointerId); } catch {}
+  });
+
+  viewport.addEventListener("pointermove", (event) => {
+    if (!pan || event.pointerId !== pan.pointerId) return;
+    const deltaX = event.clientX - pan.startX;
+    const deltaY = event.clientY - pan.startY;
+    if (!pan.moved && Math.hypot(deltaX, deltaY) < dragThreshold) return;
+    pan.moved = true;
+    viewport.classList.add("is-panning");
+    viewport.scrollLeft = pan.scrollLeft - deltaX;
+    viewport.scrollTop = pan.scrollTop - deltaY;
+    event.preventDefault();
+  });
+
+  const endPan = (event) => {
+    if (!pan || event.pointerId !== pan.pointerId) return;
+    try { viewport.releasePointerCapture(event.pointerId); } catch {}
+    viewport.classList.remove("is-panning");
+    pan = null;
+  };
+  viewport.addEventListener("pointerup", endPan);
+  viewport.addEventListener("pointercancel", endPan);
+}
+function bindTreeWheelZoom() {
+  const viewport = document.getElementById("treeViewport");
+  const wheelStep = 0.08;
+
+  viewport.addEventListener("wheel", (event) => {
+    const direction = Math.sign(event.deltaY || event.deltaX);
+    if (!direction) return;
+    event.preventDefault();
+    const bounds = viewport.getBoundingClientRect();
+    setZoom(state.zoom - direction * wheelStep, {
+      x: event.clientX - bounds.left,
+      y: event.clientY - bounds.top
+    });
+  }, { passive: false });
+}
 function bindFilterMenuDismissal() {
   const menus = [...document.querySelectorAll(".filter-menu")];
   menus.forEach((menu) => {
@@ -214,36 +260,33 @@ function clampSourceDate(source, value) {
 }
 
 function renderFilters() {
-  const planSource = activePlanSource();
-  const planActive = Boolean(planSource);
-  const periodRows = filterFacts(state.facts, {
+  const planActive = planScopeActive();
+  const baselineRows = filterFacts(state.facts, {
     source: state.baselineSource,
     start: state.baselineStart,
     end: state.baselineEnd
   });
-  const planRows = planActive ? filterFacts(state.facts, {
-    source: planSource,
-    start: isPlanSource(state.comparisonMode) ? state.comparisonStart : state.baselineStart,
-    end: isPlanSource(state.comparisonMode) ? state.comparisonEnd : state.baselineEnd
-  }) : [];
-  const planFleets = new Set(uniqueValues(planRows, "fleet_display_name"));
-  const fleets = uniqueValues(periodRows, "fleet_display_name")
-    .filter((fleet) => !planActive || planFleets.has(fleet));
-  state.selectedFleets = state.selectedFleets.filter((fleet) => fleets.includes(fleet));
-  if (!state.selectedFleets.length) state.selectedFleets = [...fleets];
+  const comparisonRows = state.comparisonMode === "custom" ? [] : filterFacts(state.facts, {
+    source: state.comparisonMode,
+    start: state.comparisonStart,
+    end: state.comparisonEnd
+  });
+  const scopeRows = [...baselineRows, ...comparisonRows];
+  const fleets = filterOptions(scopeRows, "fleet_display_name", state.selectedFleets);
   renderFilter("fleet", fleets, state.selectedFleets, (values) => {
-    state.selectedFleets = values;
+    state.selectedFleets = values.length ? values : [...fleets];
     renderFilters();
     render();
   });
-  const fleetRows = periodRows.filter((row) => state.selectedFleets.includes(row.fleet_display_name));
-  const modes = uniqueValues(fleetRows, "ahs_mode");
-  state.selectedModes = state.selectedModes.filter((mode) => modes.includes(mode));
-  if (!state.selectedModes.length) state.selectedModes = [...modes];
+  const modes = filterOptions(scopeRows.filter((row) => !isPlanSource(row.source_type)), "ahs_mode", state.selectedModes);
   renderFilter("mode", modes, state.selectedModes, (values) => {
-    state.selectedModes = values;
+    state.selectedModes = values.length ? values : [...modes];
     render();
   }, { disabled: planActive });
+}
+
+function filterOptions(rows, field, selected) {
+  return [...new Set([...uniqueValues(rows, field), ...selected])].sort();
 }
 
 function renderFilter(kind, options, selected, onChange, { singleSelect = false, disabled = false } = {}) {
@@ -328,13 +371,6 @@ function render() {
     fleets: state.selectedFleets,
     modes: planComparison ? [] : state.selectedModes
   });
-  if (isPlanSource(state.comparisonMode)) {
-    const planFleets = new Set(comparisonRows.map((row) => row.fleet_display_name));
-    baselineRows = baselineRows.filter((row) => planFleets.has(row.fleet_display_name));
-  } else if (isPlanSource(state.baselineSource)) {
-    const planFleets = new Set(baselineRows.map((row) => row.fleet_display_name));
-    comparisonRows = comparisonRows.filter((row) => planFleets.has(row.fleet_display_name));
-  }
   const baseline = aggregateModel(baselineRows);
   const observedCurrent = state.comparisonMode === "custom"
     ? aggregateModel(baselineRows, state.assumptions)
@@ -369,7 +405,7 @@ function currentBaselineRows() {
     start: state.baselineStart,
     end: state.baselineEnd,
     fleets: state.selectedFleets,
-    modes: state.selectedModes
+    modes: planScopeActive() ? [] : state.selectedModes
   });
 }
 
@@ -513,10 +549,22 @@ function compareDetail(left, right) {
   return ((left[field] ?? Number.NEGATIVE_INFINITY) - (right[field] ?? Number.NEGATIVE_INFINITY)) * direction;
 }
 
-function setZoom(value) {
-  state.zoom = Math.max(0.4, Math.min(1.1, value));
+function setZoom(value, anchor = null) {
+  const previousZoom = state.zoom;
+  const nextZoom = Math.max(0.4, Math.min(1.1, value));
+  const viewport = document.getElementById("treeViewport");
+  const anchorPoint = anchor && viewport ? {
+    x: (viewport.scrollLeft + anchor.x) / previousZoom,
+    y: (viewport.scrollTop + anchor.y) / previousZoom
+  } : null;
+
+  state.zoom = nextZoom;
   document.getElementById("zoomLabel").textContent = `${Math.round(state.zoom * 100)}%`;
   render();
+  if (anchorPoint && viewport) {
+    viewport.scrollLeft = anchorPoint.x * nextZoom - anchor.x;
+    viewport.scrollTop = anchorPoint.y * nextZoom - anchor.y;
+  }
 }
 
 function fitTree() {

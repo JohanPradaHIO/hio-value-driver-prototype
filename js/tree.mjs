@@ -1,4 +1,4 @@
-import { COMPONENTS, nodeValue } from "./model.mjs?v=20260731-v5-19";
+import { COMPONENTS, nodeValue } from "./model.mjs?v=20260821-v6-1";
 
 export const TREE_WIDTH = 1650;
 export const TREE_HEIGHT = 1175;
