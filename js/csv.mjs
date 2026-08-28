@@ -44,7 +44,7 @@ function coerce(value) {
 
 export async function fetchCsv(path, { optional = false } = {}) {
   try {
-    const response = await fetch(`${path}?v=20260821-v6-1`);
+    const response = await fetch(`${path}?v=20260828-v6-2`);
     if (!response.ok) {
       if (optional) return [];
       throw new Error(`Unable to load ${path} (${response.status})`);

@@ -1,10 +1,10 @@
 import { fetchCsv } from "./csv.mjs";
 
 const PACKAGES = [
-  { path: "./ui-data/multifleet_actuals_v5/daily_driver_facts.csv?v=20260821-v6-1", packageId: "current_actuals", optional: false },
-  { path: "./ui-data/mtp_plan_v5/daily_driver_facts.csv?v=20260821-v6-1", packageId: "mtp_plan", optional: false },
-  { path: "./ui-data/stmp_plan_v5/daily_driver_facts.csv?v=20260821-v6-1", packageId: "stmp_plan", optional: false },
-  { path: "./ui-data/weekly_plan_v5/daily_driver_facts.csv?v=20260821-v6-1", packageId: "weekly_plan", optional: false }
+  { path: "./ui-data/multifleet_actuals_v5/daily_driver_facts.csv?v=20260828-v6-2", packageId: "current_actuals", optional: false },
+  { path: "./ui-data/mtp_plan_v5/daily_driver_facts.csv?v=20260828-v6-2", packageId: "mtp_plan", optional: false },
+  { path: "./ui-data/stmp_plan_v5/daily_driver_facts.csv?v=20260828-v6-2", packageId: "stmp_plan", optional: false },
+  { path: "./ui-data/weekly_plan_v5/daily_driver_facts.csv?v=20260828-v6-2", packageId: "weekly_plan", optional: false }
 ];
 
 export async function loadFacts() {
@@ -123,12 +123,50 @@ export function monthBounds(month) {
   return { start: `${month}-01`, end: `${month}-${String(days).padStart(2, "0")}` };
 }
 
+export function defaultPlanBasePeriod(facts, planSource) {
+  const actualMonths = completeMonths(facts, "actual");
+  const completePlanMonths = completeMonths(facts, planSource);
+  const planMonthSet = new Set(completePlanMonths);
+  const latestActualMonth = actualMonths.at(-1);
+
+  if (latestActualMonth && planMonthSet.has(latestActualMonth)) {
+    return { ...monthBounds(latestActualMonth), month: latestActualMonth, basis: "latest_actual" };
+  }
+
+  const latestSharedMonth = actualMonths.filter((month) => planMonthSet.has(month)).at(-1);
+  if (latestSharedMonth) {
+    return { ...monthBounds(latestSharedMonth), month: latestSharedMonth, basis: "latest_shared" };
+  }
+
+  const latestPlanMonth = completePlanMonths.at(-1);
+  if (latestPlanMonth) {
+    return { ...monthBounds(latestPlanMonth), month: latestPlanMonth, basis: "latest_plan" };
+  }
+
+  const range = sourceRange(facts, planSource);
+  return { start: range.min, end: range.max, month: null, basis: "source_range" };
+}
+
+export function defaultActualBasePeriod(facts) {
+  const latestCompleteMonth = completeMonths(facts, "actual").at(-1);
+  if (latestCompleteMonth) {
+    return { ...monthBounds(latestCompleteMonth), month: latestCompleteMonth, basis: "latest_actual" };
+  }
+
+  const range = sourceRange(facts, "actual");
+  return { start: range.min, end: range.max, month: null, basis: "source_range" };
+}
+
 export function sourceLabel(source) {
   return source === "mtp" ? "MTP" : source === "stmp" ? "STMP" : source === "weekly" ? "Weekly" : "Actuals";
 }
 
 export function isPlanSource(source) {
   return source === "mtp" || source === "stmp" || source === "weekly";
+}
+
+export function hasIndependentComparisonPeriod(baselineSource, comparisonMode) {
+  return baselineSource === "actual" && comparisonMode === "actual";
 }
 
 function daysInMonth(month) {

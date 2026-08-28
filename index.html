@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Haul Fleet Value Driver Tree - Review Copy</title>
-  <link rel="stylesheet" href="styles.css?v=20260821-v6-1">
+  <link rel="stylesheet" href="styles.css?v=20260828-v6-2">
 </head>
 <body>
   <div class="public-disclaimer" role="note">
@@ -19,7 +19,7 @@
 
     <div class="scope-controls" aria-label="Model scope">
       <div class="period-control">
-        <span class="control-title">Reference period</span>
+        <span class="control-title">Base period</span>
         <label>Source
           <select id="baselineSource"></select>
         </label>
@@ -32,7 +32,7 @@
       </div>
 
       <div class="period-control comparison-control">
-        <span class="control-title">Scenario / comparison</span>
+        <span class="control-title">Scenario</span>
         <label>View
           <select id="comparisonMode">
             <option value="custom">Custom scenario</option>
@@ -110,12 +110,16 @@
           </div>
           <p id="detailFormula" class="formula-note"></p>
         </div>
+        <div id="detailOverview" class="detail-overview" hidden></div>
+        <div id="dailyEvidence" class="daily-evidence" hidden></div>
+        <div id="fleetEvidence" class="fleet-evidence" hidden></div>
+        <div id="breakdownHeading" class="detail-subsection-heading breakdown-heading"></div>
         <div id="detailTable" class="table-wrap"></div>
       </section>
     </section>
   </main>
 
   <div id="fatalError" class="fatal-error" hidden></div>
-  <script type="module" src="js/app.mjs?v=20260821-v6-1"></script>
+  <script type="module" src="js/app.mjs?v=20260828-v6-2"></script>
 </body>
 </html>

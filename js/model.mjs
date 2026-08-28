@@ -47,13 +47,16 @@ export function calculateRow(row, assumptions = emptyAssumptions()) {
   const hasStandby = hasValue(row.operational_standby_hours);
   const hasOperatingDelay = hasValue(row.operating_delay_hours);
 
-  const cycloneBase = hasValue(row.cyclone_standby_hours) ? number(row.cyclone_standby_hours) : 0;
+  const cycloneSource = hasValue(row.cyclone_standby_hours) ? number(row.cyclone_standby_hours) : null;
+  const cycloneBase = cycloneSource ?? 0;
   const scheduledBase = hasLossSplit ? number(row.scheduled_maintenance_hours) : null;
   const unscheduledBase = hasLossSplit ? number(row.unscheduled_maintenance_hours) : null;
   const baselineAvailable = hasLossSplit
-    ? Math.max(0, requiredTime - cycloneBase - scheduledBase - unscheduledBase)
+    ? Math.max(0, requiredTime - scheduledBase - unscheduledBase)
     : number(row.available_hours);
-  const standbyBase = hasStandby ? number(row.operational_standby_hours) : Math.max(0, baselineAvailable - number(row.operating_hours));
+  const standbyBase = hasStandby
+    ? number(row.operational_standby_hours) + cycloneBase
+    : Math.max(0, baselineAvailable - number(row.operating_hours));
   const baselineOperating = hasStandby || hasLossSplit
     ? Math.max(0, baselineAvailable - standbyBase)
     : number(row.operating_hours);
@@ -63,7 +66,7 @@ export function calculateRow(row, assumptions = emptyAssumptions()) {
   const scheduledLoss = scheduledBase == null ? null : adjustedLoss(scheduledBase, assumptions.scheduled_loss_reduction_pct);
   const unscheduledLoss = unscheduledBase == null ? null : adjustedLoss(unscheduledBase, assumptions.unscheduled_loss_reduction_pct);
   const availableTime = hasLossSplit
-    ? Math.max(0, requiredTime - cycloneBase - scheduledLoss - unscheduledLoss)
+    ? Math.max(0, requiredTime - scheduledLoss - unscheduledLoss)
     : baselineAvailable;
   const operatingStandby = Math.min(availableTime, adjustedLoss(standbyBase, assumptions.standby_reduction_pct));
   const operatingTime = Math.max(0, availableTime - operatingStandby);
@@ -121,7 +124,7 @@ export function calculateRow(row, assumptions = emptyAssumptions()) {
     calendar_time: directPhysicalPlan ? null : calendarTime,
     not_required: directPhysicalPlan ? null : notRequired,
     required_time: directPhysicalPlan ? null : requiredTime,
-    cyclone_standby: directPhysicalPlan ? null : cycloneBase,
+    cyclone_standby: directPhysicalPlan ? null : cycloneSource,
     scheduled_loss: directPhysicalPlan ? null : scheduledLoss,
     unscheduled_loss: directPhysicalPlan ? null : unscheduledLoss,
     available_time: directPhysicalPlan ? null : availableTime,
@@ -254,7 +257,7 @@ export function aggregateLikeForLike(baselineRows, comparisonRows, options = {})
       calendar_hours: calendarTime,
       not_required_hours: notRequired,
       required_hours: requiredTime,
-      cyclone_standby_hours: baseline.cyclone_standby * exposureScale,
+      cyclone_standby_hours: null,
       scheduled_maintenance_hours: scheduledLoss,
       unscheduled_maintenance_hours: unscheduledLoss,
       available_hours: availableTime,
@@ -329,7 +332,6 @@ export function nodeValue(model, nodeId) {
     operating_standby: "operating_standby",
     working_time: "working_time",
     required_time: "required_time",
-    cyclone_standby: "cyclone_standby",
     scheduled_loss: "scheduled_loss",
     unscheduled_loss: "unscheduled_loss",
     availability_pct: "availability_pct",
@@ -345,7 +347,7 @@ export function modelClosure(model) {
   const grossFromComponents = totalComponents(model.components || {});
   return {
     required_delta: model.required_time - (model.calendar_time - model.not_required),
-    available_delta: model.scheduled_loss == null || model.unscheduled_loss == null ? null : model.available_time - (model.required_time - model.cyclone_standby - model.scheduled_loss - model.unscheduled_loss),
+    available_delta: model.scheduled_loss == null || model.unscheduled_loss == null ? null : model.available_time - (model.required_time - model.scheduled_loss - model.unscheduled_loss),
     operating_delta: model.operating_time - (model.available_time - model.operating_standby),
     working_delta: model.working_time == null || model.operating_delay == null ? null : model.working_time - (model.operating_time - model.operating_delay),
     gross_cycle_delta: model.gross_cycle == null || grossFromComponents == null ? null : model.gross_cycle - grossFromComponents,

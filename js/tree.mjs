@@ -1,4 +1,4 @@
-import { COMPONENTS, nodeValue } from "./model.mjs?v=20260821-v6-1";
+import { COMPONENTS, nodeValue } from "./model.mjs?v=20260828-v6-2";
 
 export const TREE_WIDTH = 1650;
 export const TREE_HEIGHT = 1175;
@@ -30,7 +30,6 @@ const NODES = [
   node("empty_travel", "Empty Travel", 1125, 504, "calculated", "min/cycle"),
 
   node("required_time", "Required Time", 1125, 600, "calculated", "h"),
-  node("cyclone_standby", "Cyclone Standby", 1125, 665, "source", "h"),
   node("scheduled_loss", "Scheduled Loss", 1125, 730, "source", "h"),
   node("unscheduled_loss", "Unscheduled Loss", 1125, 795, "source", "h"),
   node("availability_pct", "Availability", 1125, 860, "percentage", "%"),
@@ -45,14 +44,14 @@ const NODES = [
 
 const ANNUALIZED_TOTALS = new Set([
   "tmm", "calendar_time", "not_required", "required_time", "scheduled_loss",
-  "cyclone_standby", "unscheduled_loss", "available_time", "operating_standby", "operating_time",
+  "unscheduled_loss", "available_time", "operating_standby", "operating_time",
   "operating_delay", "working_time"
 ]);
 
 const LOWER_IS_BETTER = new Set([
   "net_cycle", "gross_cycle", "queue_load", "spot_load", "loaded_travel", "loaded_distance", "truck_loading",
   "queue_dump", "spot_dump", "dumping", "empty_travel", "empty_distance", "not_required",
-  "cyclone_standby", "scheduled_loss", "unscheduled_loss", "operating_standby", "operating_delay"
+  "scheduled_loss", "unscheduled_loss", "operating_standby", "operating_delay"
 ]);
 
 const NEUTRAL_COMPARISON = new Set(["calendar_time", "truck_count"]);
@@ -80,25 +79,24 @@ const EDGES = [
   ["empty_distance", "empty_travel"], ["empty_speed", "empty_travel"],
   ["operating_time", "working_time"], ["operating_delay", "working_time"], ["uoa_pct", "working_time"],
   ["available_time", "operating_time"], ["operating_standby", "operating_time"],
-  ["required_time", "available_time"], ["cyclone_standby", "available_time"], ["scheduled_loss", "available_time"], ["unscheduled_loss", "available_time"], ["availability_pct", "available_time"],
+  ["required_time", "available_time"], ["scheduled_loss", "available_time"], ["unscheduled_loss", "available_time"], ["availability_pct", "available_time"],
   ["calendar_time", "required_time"], ["not_required", "required_time"]
 ];
 
 export const NODE_INFO = {
   tmm: ["Haul Fleet Tonnes Moved", ""],
   rate: ["Net Rate", "Effective Net Rate = total modelled TMM / total Working Time. At source grain it is Payload / (Net Cycle / 60)."],
-  net_cycle: ["Net Cycle", "Baseline = Working Time x 60 / recorded cycles. In Custom, it stays frozen except for proportional changes from the observed gross component cycle."],
+  net_cycle: ["Net Cycle", "Base = Working Time x 60 / recorded cycles. In Custom, it stays frozen except for proportional changes from the observed gross component cycle."],
   gross_cycle: ["Observed Gross Cycle", "Sum of the eight observed Wenco cycle components. It controls relative custom changes to Net Cycle; it is not presented as the Net Cycle itself."],
-  working_time: ["Working Time", "Operating Time - Operating Delay. This is the V5 TMM time multiplier."],
+  working_time: ["Working Time", "Operating Time - Operating Delay."],
   operating_time: ["Operating Time", "Available Time - Operating Standby."],
   operating_delay: ["Operating Delay", "Recorded Operating Delay. In Custom, recovered delay increases Working Time while baseline Net Cycle remains frozen."],
   truck_count: ["Number of Trucks", "Average active trucks in scope. Shown as a TMM branch for operational context; it is not yet multiplied into TMM."],
-  truck_equivalent: ["Truck Equivalent", "Annualized TMM delta divided by baseline annualized TMM per average truck. This is an output, not a truck-count input."],
+  truck_equivalent: ["Truck Equivalent", "Annualized TMM delta divided by Base annualized TMM per average truck. This is an output, not a truck-count input."],
   payload: ["Payload", "Cycle-weighted observed payload. In Custom, payload changes Net Rate directly."],
-  available_time: ["Available Time", "Required Time - Cyclone Standby - Scheduled Loss - Unscheduled Loss."],
+  available_time: ["Available Time", "Required Time - Scheduled Loss - Unscheduled Loss."],
   operating_standby: ["Operating Standby", "Available time not operating. Reducing it increases Operating and Working Time."],
   required_time: ["Required Time", "Calendar Time - Not Required."],
-  cyclone_standby: ["Cyclone Standby", "Weekly plan hours unavailable due to cyclone standby. Retained separately from Scheduled Maintenance."],
   scheduled_loss: ["Scheduled Loss", "Scheduled maintenance loss hours."],
   unscheduled_loss: ["Unscheduled Loss", "Unscheduled maintenance loss hours."],
   availability_pct: ["Availability", "Available Time / Required Time."],
@@ -149,7 +147,7 @@ export function renderTree(container, baseline, current, selectedNodeId, onSelec
       <button class="tree-node ${item.id === selectedNodeId ? "selected" : ""} ${changed ? "active-path" : ""} ${toneClass}" type="button"
         data-node-id="${item.id}" style="left:${item.x}px;top:${item.y}px" title="${NODE_INFO[item.id][1]}">
         <span class="node-title">${item.label}${deltaText}</span>
-        <span class="node-values" aria-label="Baseline and scenario values">
+        <span class="node-values" aria-label="Base and Scenario values">
           <span class="node-value-pair node-value-baseline"><small>Base | ${displayUnit}</small><strong>${formatNodeValue(baselineValue, item.unit)}</strong></span>
           <span class="node-value-pair node-value-scenario"><small>Scen. | ${displayUnit}</small><strong>${formatNodeValue(currentValue, item.unit)}</strong></span>
         </span>
