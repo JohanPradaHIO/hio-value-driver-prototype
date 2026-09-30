@@ -1,0 +1,2 @@
+:HL["/hio-value-driver-prototype/_next/static/css/dd4580ac222f9bab.css","style"]
+0:{"tree":{"name":"","param":null,"prefetchHints":4176,"slots":{"children":{"name":"(app)","param":null,"prefetchHints":4192,"slots":{"children":{"name":"process-plant","param":null,"prefetchHints":4192,"slots":{"children":{"name":"__PAGE__","param":null,"prefetchHints":4256,"slots":null}}}}}}},"staleTime":300,"buildId":"6q48Y573CySl_h_oc7Hcr"}
